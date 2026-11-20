@@ -23,15 +23,16 @@ sudo darwin-rebuild switch --flake .#Allans-MacBook-Pro
 Don't wipe macOS or Nix. Nix is already a clean Determinate install, and Homebrew can be adopted gradually (`cleanup = "none"` means nix-darwin deletes nothing yet).
 
 1. **Remove MacPorts.** It's broken ("OS platform mismatch") and only provides a stale emacs/gcc: `sudo rm -rf /opt/local /Applications/MacPorts /Library/LaunchDaemons/org.macports.*`
-2. **Switch.** Run the command under Apply. nix-darwin writes `/etc/zshrc` so `/run/current-system/sw/bin` is on PATH.
-3. **Remove duplicates installed outside nix**, then check `which <tool>`:
+2. **Swap Emacs.** `brew uninstall --cask emacs-app` so `/Applications/Emacs.app` is free. On switch, the `emacs-plus-app` cask (Emacs 31) installs there.
+3. **Switch.** Run the command under Apply. nix-darwin writes `/etc/zshrc` so `/run/current-system/sw/bin` is on PATH.
+4. **Remove duplicates installed outside nix**, then check `which <tool>`:
    - `brew uninstall asdf awscli cfn-lint clojure cmake coreutils gh git htop jq just kubernetes-cli maven node openjdk@11 pandoc pipx podman-compose python@3.11 python@3.12 rain roswell stow tmux trivy bear cli53 dotnet@8 cryptography` (brew refuses if something still depends on one, so leave that one installed)
    - `pipx uninstall ansible`, then delete the ansible argcomplete `eval` lines in `.zshrc`.
    - `rustup self uninstall`, then `rustup default stable` with the nix rustup. Keep `$HOME/.cargo/bin` on PATH for `cargo install`ed tools, and drop the three `. "$HOME/.cargo/env"` lines.
    - `rm -rf ~/.atuin` and remove the `~/.atuin/bin/env` lines and the zinit `starship`/`atuin` loads, since nix provides both.
    - `rm ~/.local/bin/mise` (nix provides mise).
-   - Untap unused taps: `brew untap d12frosted/emacs-plus homebrew/cask-fonts jank-lang/jank jimeh/emacs-builds railwaycat/emacsmacport`
-4. **Adopt Homebrew fully.** Once `brew leaves` / `brew list --cask` show only what's in `flake.nix`, set `homebrew.onActivation.cleanup = "uninstall"`.
+   - Untap unused taps: `brew untap homebrew/cask-fonts jank-lang/jank jimeh/emacs-builds railwaycat/emacsmacport`
+5. **Adopt Homebrew fully.** Once `brew leaves` / `brew list --cask` show only what's in `flake.nix`, set `homebrew.onActivation.cleanup = "uninstall"`.
 
 Those `.zshrc` edits go in `~/dotfiles/zsh/dot-zshrc` (stow). This repo doesn't manage dotfiles yet.
 
@@ -48,7 +49,7 @@ Those `.zshrc` edits go in `~/dotfiles/zsh/dot-zshrc` (stow). This repo doesn't 
 | Rust | rustup, rg/exa via cargo | nix rustup (rg/eza from nix) |
 | .NET 8 | dotnet@8 | nix |
 | PHP | composer.json, PhpStorm | nix (php + composer) |
-| Emacs Lisp | `~/dot-emacs.d` | emacs-app cask |
+| Emacs Lisp | `~/dot-emacs.d` | emacs-plus-app cask (Emacs 31) |
 | Infra: AWS CLI, CloudFormation (cfn-lint, rain, sceptre), Terraform, kubectl, trivy | `projects/infra` | nix (sceptre via brew: not in nixpkgs) |
 | Containers | OrbStack, Podman, Vagrant | casks + nix podman |
 

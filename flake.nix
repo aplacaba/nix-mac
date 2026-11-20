@@ -74,6 +74,7 @@
             # Start with "none" (no deletions). Flip to "uninstall" once the
             # lists below are confirmed complete, then "zap" if you want.
             onActivation.cleanup = "none";
+            taps = [ "d12frosted/emacs-plus" ];
             brews = [
               # native gem deps (tiny_tds, pg, mysql2, ruby-vips) + ruby builds
               "freetds"
@@ -92,7 +93,7 @@
               "kitty"
               "wezterm"
               "iterm2"
-              "emacs-app"
+              "emacs-plus-app" # Emacs 31, d12frosted/emacs-plus tap
               "jetbrains-toolbox"
               "antigravity"
               "t3-code"
@@ -128,6 +129,7 @@
               "font-dejavu-sans-mono-nerd-font"
             ];
           };
+
         })
       ];
     };
