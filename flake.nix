@@ -70,6 +70,8 @@
             ripgrep
             eza
             starship
+            codex
+            opencode
           ];
 
           # GUI apps + C libs that native gems link against stay in Homebrew.
