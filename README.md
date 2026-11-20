@@ -12,30 +12,18 @@ nix-darwin config for `Allans-MacBook-Pro` (aarch64, macOS 26). NixOS itself doe
 ## Apply
 
 ```sh
-# first time (no darwin-rebuild on PATH yet)
-sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake .#Allans-MacBook-Pro
-# after that
 sudo darwin-rebuild switch --flake .#Allans-MacBook-Pro
 ```
 
-## Migration: in place, no reinstall
+Homebrew runs with `cleanup = "uninstall"`: add a formula or cask to `flake.nix` instead of running `brew install`, or the next switch removes it. Homebrew comes after nix on PATH, so nix wins where both have a tool.
 
-Don't wipe macOS or Nix. Nix is already a clean Determinate install, and Homebrew can be adopted gradually (`cleanup = "none"` means nix-darwin deletes nothing yet).
+## Migration (done 2026-11-20, in place, no reinstall)
 
-1. **Remove MacPorts.** It's broken ("OS platform mismatch") and only provides a stale emacs/gcc: `sudo rm -rf /opt/local /Applications/MacPorts /Library/LaunchDaemons/org.macports.*`
-2. **Swap Emacs.** `brew uninstall --cask emacs-app` so `/Applications/Emacs.app` is free. On switch, the `emacs-plus-app` cask (Emacs 31) installs there.
-3. **Switch.** Run the command under Apply. nix-darwin writes `/etc/zshrc` so `/run/current-system/sw/bin` is on PATH.
-4. **Remove duplicates installed outside nix**, then check `which <tool>`:
-   - `brew uninstall asdf awscli cfn-lint clojure cmake coreutils gh git htop jq just kubernetes-cli maven node openjdk@11 pandoc pipx podman-compose python@3.11 python@3.12 rain roswell stow tmux trivy bear cli53 dotnet@8 cryptography` (brew refuses if something still depends on one, so leave that one installed)
-   - `pipx uninstall ansible`, then delete the ansible argcomplete `eval` lines in `.zshrc`.
-   - `rustup self uninstall`, then `rustup default stable` with the nix rustup. Keep `$HOME/.cargo/bin` on PATH for `cargo install`ed tools, and drop the three `. "$HOME/.cargo/env"` lines.
-   - `rm -rf ~/.atuin` and remove the `~/.atuin/bin/env` lines and the zinit `starship`/`atuin` loads, since nix provides both.
-   - `rm ~/.local/bin/mise` (nix provides mise).
-   - Remove other terminals (Ghostty only): `brew uninstall --cask --zap alacritty kitty wezterm` and drag `iTerm.app` to the Trash.
-   - Untap unused taps: `brew untap homebrew/cask-fonts jank-lang/jank jimeh/emacs-builds railwaycat/emacsmacport`
-5. **Adopt Homebrew fully.** Once `brew leaves` / `brew list --cask` show only what's in `flake.nix`, set `homebrew.onActivation.cleanup = "uninstall"`.
-
-Those `.zshrc` edits go in `~/dotfiles/zsh/dot-zshrc` (stow). This repo doesn't manage dotfiles yet.
+- Removed MacPorts (`/opt/local`, broken after the OS upgrade) and asdf.
+- Removed 29 brew formulae, pipx ansible, the curl-installed rustup and mise, the old Emacs build and 4 unused taps, since nix replaces them all.
+- Removed atuin entirely, including its history and its config in `~/dotfiles`. Removed every terminal except Ghostty.
+- Brought the existing apps under Homebrew (`--adopt`, or a reinstall for apps that use installer packages).
+- The original `/etc` shell files were kept as `*.before-nix-darwin`, and `~/.zprofile` as `~/.zprofile.before-nix-darwin`.
 
 ## What's on the machine
 
@@ -58,5 +46,5 @@ Those `.zshrc` edits go in `~/dotfiles/zsh/dot-zshrc` (stow). This repo doesn't 
 
 - **home-manager**: dotfiles stay on stow. Add it if you want zsh/git/tmux config in nix.
 - **Per-project toolchains**: mise is fine for now. Move to `devShell` + direnv per repo if you want one tool.
-- **Apps outside Homebrew**: Amphetamine and Apple apps (Mac App Store), FastScrobbler and KensingtonWorks (no cask). Use `homebrew.masApps` if you want the App Store ones declared too.
+- **Apps outside Homebrew**: Amphetamine, Telegram, Windows App and Apple apps (Mac App Store), FastScrobbler and KensingtonWorks (no cask). Use `homebrew.masApps` if you want the App Store ones declared too.
 - **Overlap you may want to trim**: 5 browsers, and both OrbStack and Podman.

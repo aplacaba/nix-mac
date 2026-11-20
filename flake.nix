@@ -10,7 +10,7 @@
   outputs = { nix-darwin, ... }: {
     darwinConfigurations."Allans-MacBook-Pro" = nix-darwin.lib.darwinSystem {
       modules = [
-        ({ pkgs, ... }: {
+        ({ pkgs, lib, ... }: {
           nixpkgs.hostPlatform = "aarch64-darwin";
           nixpkgs.config.allowUnfree = true; # terraform (BSL)
 
@@ -20,6 +20,9 @@
           system.primaryUser = "allanlacaba";
           users.users.allanlacaba.home = "/Users/allanlacaba";
           system.stateVersion = 6;
+
+          # Homebrew after nix, so nix wins for tools both provide.
+          environment.systemPath = lib.mkAfter [ "/opt/homebrew/bin" "/opt/homebrew/sbin" ];
 
           environment.systemPackages = with pkgs; [
             # --- languages / toolchains (single global version) ---
@@ -52,6 +55,8 @@
 
             # --- cli ---
             git
+            bashInteractive
+            curl
             gh
             jq
             just
@@ -64,16 +69,14 @@
             pandoc
             ripgrep
             eza
-            atuin
             starship
           ];
 
           # GUI apps + C libs that native gems link against stay in Homebrew.
           homebrew = {
             enable = true;
-            # Start with "none" (no deletions). Flip to "uninstall" once the
-            # lists below are confirmed complete, then "zap" if you want.
-            onActivation.cleanup = "none";
+            # Anything brew-installed but not listed here is removed on switch.
+            onActivation.cleanup = "uninstall";
             taps = [ "d12frosted/emacs-plus" ];
             brews = [
               # native gem deps (tiny_tds, pg, mysql2, ruby-vips) + ruby builds
@@ -85,6 +88,9 @@
               "libyaml"
               "gmp"
               "sceptre" # not in nixpkgs
+              # emacs-plus-app runtime deps (cask deps are not protected from cleanup)
+              "gcc"
+              "libgccjit"
             ];
             casks = [
               # terminals / editors
@@ -117,8 +123,6 @@
               "obsidian"
               "slack"
               "tailscale-app"
-              "telegram"
-              "windows-app"
               "psychopy"
               # fonts
               "font-aporetic"
