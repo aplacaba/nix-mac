@@ -89,10 +89,6 @@
             casks = [
               # terminals / editors
               "ghostty"
-              "alacritty"
-              "kitty"
-              "wezterm"
-              "iterm2"
               "emacs-plus-app" # Emacs 31, d12frosted/emacs-plus tap
               "jetbrains-toolbox"
               "antigravity"

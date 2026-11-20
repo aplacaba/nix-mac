@@ -31,6 +31,7 @@ Don't wipe macOS or Nix. Nix is already a clean Determinate install, and Homebre
    - `rustup self uninstall`, then `rustup default stable` with the nix rustup. Keep `$HOME/.cargo/bin` on PATH for `cargo install`ed tools, and drop the three `. "$HOME/.cargo/env"` lines.
    - `rm -rf ~/.atuin` and remove the `~/.atuin/bin/env` lines and the zinit `starship`/`atuin` loads, since nix provides both.
    - `rm ~/.local/bin/mise` (nix provides mise).
+   - Remove other terminals (Ghostty only): `brew uninstall --cask --zap alacritty kitty wezterm` and drag `iTerm.app` to the Trash.
    - Untap unused taps: `brew untap homebrew/cask-fonts jank-lang/jank jimeh/emacs-builds railwaycat/emacsmacport`
 5. **Adopt Homebrew fully.** Once `brew leaves` / `brew list --cask` show only what's in `flake.nix`, set `homebrew.onActivation.cleanup = "uninstall"`.
 
@@ -58,4 +59,4 @@ Those `.zshrc` edits go in `~/dotfiles/zsh/dot-zshrc` (stow). This repo doesn't 
 - **home-manager**: dotfiles stay on stow. Add it if you want zsh/git/tmux config in nix.
 - **Per-project toolchains**: mise is fine for now. Move to `devShell` + direnv per repo if you want one tool.
 - **Apps outside Homebrew**: Amphetamine and Apple apps (Mac App Store), FastScrobbler and KensingtonWorks (no cask). Use `homebrew.masApps` if you want the App Store ones declared too.
-- **Overlap you may want to trim**: 5 terminals (ghostty, alacritty, kitty, wezterm, iTerm), 5 browsers, and both OrbStack and Podman.
+- **Overlap you may want to trim**: 5 browsers, and both OrbStack and Podman.
