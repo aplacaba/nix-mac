@@ -100,6 +100,7 @@
               "antigravity"
               "t3-code"
               "claude"
+              "chatgpt"
               # dev
               "orbstack"
               "podman-desktop"
